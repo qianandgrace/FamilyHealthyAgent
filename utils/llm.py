@@ -1,11 +1,20 @@
 import os
 import logging
+import sys
 from langchain_openai import ChatOpenAI,OpenAIEmbeddings
-
+from langchain_huggingface.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+# 将项目根目录加入 sys.path，保证包内引用可用（以便从项目根运行脚本）
+CURRENT_DIR = os.path.dirname(__file__)
+PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, os.pardir)) # 调试断点，检查路径设置是否正确
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+from configs.config_loader import config
 
 # 设置日志模版
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
 
 
 # 模型配置字典
@@ -13,34 +22,22 @@ MODEL_CONFIGS = {
     "openai": {
         "base_url": "https://api.laozhang.ai/v1",
         "api_key": os.getenv("LAOZHANG_API_KEY"),
-        "chat_model": "gpt-5-chat-latest",
-        "embed_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "embedding_model": "text-embedding-v4",
-        "embed_api_key": os.getenv("DASHSCOPE_API_KEY")
+        "chat_model": "gpt-5-chat-latest"
     },
     "qwen": {
         "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "api_key": os.getenv("DASHSCOPE_API_KEY"),
         "chat_model": "qwen-max",
-        "embed_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "embedding_model": "text-embedding-v4",
-        "embed_api_key": os.getenv("DASHSCOPE_API_KEY")
     },
     "deepseek": {
         "base_url": "https://api.deepseek.com/v1",
         "api_key": os.getenv("DEEPSEEK_API_KEY"),
         "chat_model": "deepseek-chat",
-        "embed_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "embedding_model": "text-embedding-v4",
-        "embed_api_key": os.getenv("DASHSCOPE_API_KEY")
     },
     "vllm": {
         "base_url": "http://ai.bygpu.com:58132/v1",
         "api_key": "vllm",
         "chat_model": "Qwen/Qwen3-4B",
-        "embed_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "embedding_model": "text-embedding-v4",
-        "embed_api_key": os.getenv("DASHSCOPE_API_KEY")
     }
 }
 
@@ -55,7 +52,7 @@ class LLMInitializationError(Exception):
     pass
 
 
-def initialize_llm(llm_type: str = DEFAULT_LLM_TYPE) -> tuple[ChatOpenAI, OpenAIEmbeddings]:
+def initialize_llm(llm_type: str = DEFAULT_LLM_TYPE) -> tuple[ChatOpenAI, HuggingFaceBgeEmbeddings]:
     """
     初始化LLM实例
 
@@ -88,15 +85,14 @@ def initialize_llm(llm_type: str = DEFAULT_LLM_TYPE) -> tuple[ChatOpenAI, OpenAI
             timeout=30,  # 添加超时配置（秒）
             max_retries=2  # 添加重试次数
         )
-
-        llm_embedding = OpenAIEmbeddings(
-            base_url=config["embed_url"],
-            api_key=config["embed_api_key"],
-            model=config["embedding_model"],
-            deployment=config["embedding_model"],
-            check_embedding_ctx_length=False
+        
+        # 默认为768维的向量，使用 HuggingFaceBgeEmbeddings 进行嵌入生成
+        model_name = r"C:\Users\qian gao\models\BAAI\bge-base-zh-v1___5"
+        model_kwargs = {"device": "cpu"}
+        encode_kwargs = {"normalize_embeddings": True}
+        llm_embedding = HuggingFaceBgeEmbeddings(
+            model_name=model_name, model_kwargs=model_kwargs, encode_kwargs=encode_kwargs
         )
-
         logger.info(f"成功初始化 {llm_type} LLM")
         # return llm_chat
         return llm_chat, llm_embedding
@@ -109,7 +105,7 @@ def initialize_llm(llm_type: str = DEFAULT_LLM_TYPE) -> tuple[ChatOpenAI, OpenAI
         raise LLMInitializationError(f"初始化LLM失败: {str(e)}")
 
 
-def get_llm(llm_type: str = DEFAULT_LLM_TYPE) -> tuple[ChatOpenAI, OpenAIEmbeddings]:
+def get_llm(llm_type: str = DEFAULT_LLM_TYPE) -> tuple[ChatOpenAI, HuggingFaceBgeEmbeddings]:
     """
     获取LLM实例的封装函数，提供默认值和错误处理
 
@@ -134,8 +130,10 @@ if __name__ == "__main__":
         # 测试不同类型的LLM初始化
         # llm_openai = get_llm("openai")
         llm_chat, llm_embedding = get_llm("openai")
-        print(llm_chat.invoke(["Hello, world!"]))
-        # 测试无效类型
+        # print(llm_chat.invoke(["Hello, world!"]))
+        # 测试embedding生成
+        embeddings = llm_embedding.embed_documents(["Hello, world!", "How are you?"])
+        print(len(embeddings), len(embeddings[0]))  # 输出嵌入的数量和维度
         # llm_invalid = get_llm("invalid_type")
     except LLMInitializationError as e:
         logger.error(f"程序终止: {str(e)}")

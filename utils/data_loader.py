@@ -102,7 +102,7 @@ def load_md_as_chunks(md_path: Path) -> Tuple[List[str], List[Dict[str, Any]]]:
     for i, c in enumerate(chunks):
         texts.append(c)
         metas.append({
-            "category": "knowledge",
+            "category": "weijianwei_knowledge",
             "format": "md",
             "source": str(md_path),
             "chunk": i,

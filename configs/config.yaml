@@ -1,18 +1,19 @@
 # LLM配置
 llm:
   type: "qwen"  # openai:调用gpt模型, qwen:调用阿里通义千问大模型, oneapi:调用oneapi方案支持的模型, ollama:调用本地开源大模型
+embedding:
+  model: "BAAI/bge-base-zh-v1.5"  # 用于生成文本嵌入的模型名称，需与LLM嵌入维度一致 
+
 
 # 文本处理配置
 text:
-  language: "Chinese"  # Chinese 或 English
-  input_pdf: "C:\\project\\my_agent\\data\\健康档案.pdf"
-  page_numbers: null  # null表示处理所有页，或指定页码列表如 [2, 3]
+  input_md: "C:\\Users\\qian gao\\git_project\\FamilyHealthyAgent\\data\\transfer_data"
+  base_dir: "C:\\Users\\qian gao\\git_project\\FamilyHealthyAgent\\data"  # 基础数据目录，包含文本输入和向量数据库等子目录
 
 # 向量数据库配置
 chromadb:
   directory: "chromaDB"  # chromaDB向量数据库的持久化路径
-  collection_name: "health_records"  # 待查询的chromaDB向量数据库的集合名称
-  embedding_size: 1024  # 向量维度大小，需与LLM嵌入维度一致
+  embedding_size: 768  # 向量维度大小，需与LLM嵌入维度一致
 
 # 日志配置
 logging:
