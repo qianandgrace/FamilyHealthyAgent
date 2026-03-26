@@ -1,6 +1,6 @@
 # runtime generated vector index
 chromaDB/
-pyadmin_data/
+pgadmin_data/
 pgdata/
 
 # python cache
