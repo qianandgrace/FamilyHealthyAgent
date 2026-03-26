@@ -1,0 +1,15 @@
+# runtime generated vector index
+chroma_db/
+pyadmin_data/
+pgdata/
+
+# python cache
+__pycache__/
+*.pyc
+
+# optional: local data
+*.log
+*.tmp
+
+# third-party libraries
+third_party/

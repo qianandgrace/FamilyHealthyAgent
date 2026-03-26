@@ -1,0 +1,38 @@
+# LLM配置
+llm:
+  type: "qwen"  # openai:调用gpt模型, qwen:调用阿里通义千问大模型, oneapi:调用oneapi方案支持的模型, ollama:调用本地开源大模型
+
+# 文本处理配置
+text:
+  language: "Chinese"  # Chinese 或 English
+  input_pdf: "C:\\project\\my_agent\\data\\健康档案.pdf"
+  page_numbers: null  # null表示处理所有页，或指定页码列表如 [2, 3]
+
+# 向量数据库配置
+chromadb:
+  directory: "chromaDB"  # chromaDB向量数据库的持久化路径
+  collection_name: "health_records"  # 待查询的chromaDB向量数据库的集合名称
+  embedding_size: 1024  # 向量维度大小，需与LLM嵌入维度一致
+
+# 日志配置
+logging:
+  level: "DEBUG"  # 日志级别，如 DEBUG, INFO, WARNING, ERROR
+  file: "logs/agent.log"  # 日志文件路径
+  max_bytes: 10485760  # 日志文件最大字节数，超过则轮转
+  backup_count: 5  # 保留的轮转日志文件数量
+
+# prompt配置
+prompts:
+  template_path_agent: "prompts/prompt_template_agent.txt"
+  template_path_grade: "prompts/prompt_template_grade.txt"
+  template_path_rewrite: "prompts/prompt_template_rewrite.txt"
+  template_path_generate: "prompts/prompt_template_generate.txt"
+
+# 数据库配置
+database:
+  db_uri: "postgresql://gq210:123456@localhost:5432/postgres?sslmode=disable"  # PostgreSQL数据库连接URI
+
+# 服务器配置
+server:
+  host: 0.0.0.0
+  port: 8012
