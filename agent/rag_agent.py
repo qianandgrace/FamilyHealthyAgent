@@ -429,6 +429,7 @@ def agent(state: MessagesState, config: RunnableConfig, *, store: BaseStore, llm
     logger.info("Agent processing user query")
     # 定义存储命名空间，使用用户ID
     namespace = ("memories", config["configurable"]["user_id"]) # type: ignore
+    logger.info(f"Agent namespace: {namespace}")
     # 尝试执行以下代码块
     try:
         # 获取最后一条消息即用户问题
@@ -798,7 +799,7 @@ def create_graph(db_connection_pool: ConnectionPool, llm_chat, llm_embedding, to
     workflow.add_edge(start_key="rewrite", end_key="agent")
 
     # 编译状态图，绑定检查点和存储
-    return workflow.compile() # type: ignore
+    return workflow.compile(checkpointer=checkpointer,store=store) # type: ignore
 
 
 # 定义响应函数

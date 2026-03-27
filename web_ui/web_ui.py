@@ -251,7 +251,7 @@ APP_CSS = """
     .header-btn { margin-left: 10px; padding: 5px 10px; font-size: 14px; }
 """
 
-with gr.Blocks(title="聊天助手") as demo:
+with gr.Blocks(title="家庭健康助手") as demo:
     # 定义状态变量，用于追踪登录状态
     logged_in = gr.State(False)
     # 定义状态变量，用于存储当前用户名
