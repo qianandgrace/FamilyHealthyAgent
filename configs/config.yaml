@@ -31,7 +31,7 @@ prompts:
 
 # 数据库配置
 database:
-  db_uri: "postgresql://gq210:123456@localhost:5432/postgres?sslmode=disable"  # PostgreSQL数据库连接URI
+  db_uri: "postgresql://gq210:123456@localhost:5432/postgres?options=-csearch_path%3Dfamily_agent"  # PostgreSQL数据库连接URI
 
 # 服务器配置
 server:
